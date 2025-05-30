@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
+User  = get_user_model()
 
 class Flat(models.Model):
     owner = models.CharField('ФИО владельца', max_length=200)
@@ -48,8 +49,12 @@ class Flat(models.Model):
         null=True,
         blank=True,
         db_index=True)
-
-User  = get_user_model()
+    
+    likes = models.ManyToManyField(
+        User, 
+        related_name='liked_flats', 
+        blank=True,
+        verbose_name='Лайки')
 
 class Complaint(models.Model):
     user = models.ForeignKey(User, verbose_name='Кто жаловался:', 
