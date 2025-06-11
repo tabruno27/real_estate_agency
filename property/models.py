@@ -6,7 +6,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Flat(models.Model):
-    new_building = models.BooleanField(null=True, blank=True)
+    new_building = models.BooleanField(null=True, blank=True, verbose_name='Новостройка')
     created_at = models.DateTimeField(
         'Когда создано объявление',
         default=timezone.now,
@@ -41,34 +41,25 @@ class Flat(models.Model):
         blank=True,
         db_index=True)
 
-    has_balcony = models.NullBooleanField('Наличие балкона', db_index=True)
-    active = models.BooleanField('Активно-ли объявление', db_index=True)
+    has_balcony = models.BooleanField('Наличие балкона', null=True, blank=True, db_index=True)
     construction_year = models.IntegerField(
         'Год постройки здания',
         null=True,
         blank=True,
         db_index=True)
-    
-    likes = models.ManyToManyField(
-        User, 
-        related_name='liked_flats', 
-        blank=True,
-        verbose_name='Лайки')
 
-     owners = models.ManyToManyField('Owner', related_name='owned_flats', verbose_name='Собственники')
+    liked_by = models.ManyToManyField(User, related_name='liked_by', blank=True, verbose_name='Кто лайкнул')
+
+    owners = models.ManyToManyField('Owner', related_name='owned_flats', verbose_name='Собственники')
 
     def __str__(self):
         return f'{self.town}, {self.address} ({self.price}р.)'
 
 
 class Complaint(models.Model):
-    user = models.ForeignKey(User, verbose_name='Кто жаловался:', 
-                             on_delete=models.CASCADE)
-    flat = models.ForeignKey('Flat',
-                             verbose_name='Квартира, на которую пожаловались:',
-                             on_delete=models.CASCADE)
-    complaint_text = models.TextField(verbose_name='Текст жалобы:')
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Кто жаловался")
+    flat = models.ForeignKey(Flat, on_delete=models.SET_NULL, null=True, verbose_name="Квартира на которую жаловались")
+    text = models.TextField(verbose_name="Текст жалобы", default="")
 
     def __str__(self):
         return f"Жалоба от {self.user} на {self.flat}"
