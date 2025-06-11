@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Flat, Complaint
+from .models import Flat, Complaint, Owner
 
 
 class FlatAdmin(admin.ModelAdmin):
@@ -17,8 +17,15 @@ class FlatAdmin(admin.ModelAdmin):
         return obj.likes.count()
     likes_count.short_description = 'Количество лайков'
 
+
 class ComplaintAdmin(admin.ModelAdmin):
     raw_id_fields = ('user', 'flat')
 
+
+class OwnerAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'phone_number', 'owner_pure_phone')
+    raw_id_fields = ('flat_owner',)
+
 admin.site.register(Flat, FlatAdmin)
 admin.site.register(Complaint, ComplaintAdmin)
+admin.site.register(Owner, OwnerAdmin)
