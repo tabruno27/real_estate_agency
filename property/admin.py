@@ -4,7 +4,7 @@ from .models import Flat, Complaint, Owner
 
 
 class OwnerInline(admin.TabularInline):
-    model = Flat.owners.through
+    model = Owner.flat_owner.through
     extra = 4
     raw_id_fields = ['owner']
     verbose_name = 'Собственник'
@@ -22,8 +22,6 @@ class FlatAdmin(admin.ModelAdmin):
     list_editable = ('new_building',)
     list_filter = ('new_building', 'rooms_number', 'has_balcony', 'floor',)
     raw_id_fields = ('liked_by',)
-    inlines = [OwnerInline]
-    exclude = ['owners']
 
 class ComplaintAdmin(admin.ModelAdmin):
     list_display = ('user', 'flat', 'text')
@@ -31,7 +29,7 @@ class ComplaintAdmin(admin.ModelAdmin):
 
 
 class OwnerAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'phone_number', 'owner_pure_phone')
+    list_display = ('full_name', 'owner_pure_phone')
     raw_id_fields = ('flat_owner',)
 
 
