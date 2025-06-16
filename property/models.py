@@ -1,3 +1,5 @@
+моделс:
+
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -6,7 +8,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Flat(models.Model):
-    new_building = models.BooleanField(null=True, blank=True, verbose_name='Новостройка')
+    new_building = models.BooleanField(null=True, blank=True, verbose_name='Новостройка', db_index=True)
     created_at = models.DateTimeField(
         'Когда создано объявление',
         default=timezone.now,
@@ -48,17 +50,15 @@ class Flat(models.Model):
         blank=True,
         db_index=True)
 
-    liked_by = models.ManyToManyField(User, related_name='liked_by', blank=True, verbose_name='Кто лайкнул')
-
-    owners = models.ManyToManyField('Owner', related_name='owned_flats', verbose_name='Собственники')
+    liked_by = models.ManyToManyField(User, related_name='liked_flats', blank=True, verbose_name='Кто лайкнул')
 
     def __str__(self):
         return f'{self.town}, {self.address} ({self.price}р.)'
 
 
 class Complaint(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Кто жаловался")
-    flat = models.ForeignKey(Flat, on_delete=models.SET_NULL, null=True, verbose_name="Квартира на которую жаловались")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name="Кто жаловался", related_name="complaints")
+    flat = models.ForeignKey(Flat, on_delete=models.SET_NULL, null=True, verbose_name="Квартира на которую жаловались", related_name="complaints")
     text = models.TextField(verbose_name="Текст жалобы", default="")
 
     def __str__(self):
@@ -67,9 +67,8 @@ class Complaint(models.Model):
 
 class Owner(models.Model):
     full_name = models.CharField('ФИО владельца', max_length=200)
-    phone_number = models.CharField('Номер владельца', max_length=20)
     owner_pure_phone = PhoneNumberField(
-        blank=True, null=True, region="RU", verbose_name="Нормализованный номер владельца")
+        blank=True, null=True, region="RU", verbose_name="Номер владельца")
     flat_owner = models.ManyToManyField(Flat, related_name='owner_flats', verbose_name='Квартиры в собственности')
 
     def __str__(self):
